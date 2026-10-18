@@ -3,6 +3,9 @@
    Thème clair / sombre via [data-theme] sur <html>.
    ========================================================= */
 
+@font-face { font-family: "Inter"; src: url("../fonts/inter-var.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url("../fonts/jetbrains-mono-var.woff2") format("woff2"); font-weight: 100 800; font-display: swap; }
+
 :root {
   --accent: #0a84ff;
   --dock-size: 54px;
@@ -80,6 +83,7 @@ svg { display: block; }
 img { -webkit-user-drag: none; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 4px; }
 [hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 #screen { position: fixed; inset: 0; overflow: hidden; }
 
@@ -522,6 +526,8 @@ img { -webkit-user-drag: none; }
 .about dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; margin: 0 0 16px; font-size: 12px; text-align: left; }
 .about dt { font-weight: 600; text-align: right; }
 .about dd { margin: 0; color: var(--text-2); }
+.about__legal { margin: 14px 0 0; font-size: 11px; color: var(--text-3); }
+.about__legal a { color: var(--text-2); }
 .shortcuts { padding: 12px 18px; display: grid; gap: 2px; }
 .shortcuts__row { display: grid; grid-template-columns: 100px 1fr; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .shortcuts__row:last-child { border: 0; }
@@ -644,13 +650,15 @@ kbd { font-family: var(--font); font-size: 12px; font-weight: 600; padding: 2px 
   gap: 44px;
   background: #000;
   color: #fff;
-  transition: opacity .7s ease;
+  transition: opacity .5s ease;
 }
 #boot.is-done { opacity: 0; pointer-events: none; }
 .boot__logo { width: 88px; height: 88px; }
 .boot__track { width: 190px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, .22); overflow: hidden; }
 #boot-bar { display: block; height: 100%; background: #fff; border-radius: inherit; transform-origin: left; transform: scaleX(0); transition: transform .12s linear; }
-.noscript { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; margin: 0; background: #000; color: #fff; font-size: 16px; }
+.noscript { position: fixed; inset: 0; z-index: 9999; display: grid; place-content: center; gap: 4px; padding: 24px; text-align: center; background: #000; color: #fff; font-size: 17px; user-select: text; }
+.noscript p { margin: 0 0 8px; }
+.noscript a { color: #9d8cff; }
 
 /* ---------- Petits écrans ---------- */
 @media (max-width: 700px) {

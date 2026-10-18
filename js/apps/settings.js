@@ -77,6 +77,11 @@
           row('Stockage utilisé', h('span', { class: 'set__val' }, OS.fmtSize(OS.store.size()))),
         ),
         group(
+          row('Mentions légales', h('a', { class: 'set__link', href: 'mentions-legales.html', target: '_blank', rel: 'noopener' }, 'Ouvrir ↗')),
+          row('Politique de confidentialité', h('a', { class: 'set__link', href: 'confidentialite.html', target: '_blank', rel: 'noopener' }, 'Ouvrir ↗'), 'Aucun cookie, données stockées uniquement sur cet appareil'),
+          row('Crédits', h('a', { class: 'set__link', href: 'credits.html', target: '_blank', rel: 'noopener' }, 'Ouvrir ↗')),
+        ),
+        group(
           row('Réinitialiser la démo', h('button', { class: 'btn btn--danger', style: { color: '#fff' }, onclick: reset }, 'Réinitialiser…'), 'Restaure les fichiers, réglages et messages d\'origine'),
         ),
       ],

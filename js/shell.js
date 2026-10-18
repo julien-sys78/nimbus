@@ -77,6 +77,9 @@
     input.addEventListener('blur', () => finish(true));
   };
 
+  /* Pages du site (légales, crédits) : nouvel onglet du vrai navigateur */
+  OS.openPage = (page) => window.open(page, '_blank', 'noopener');
+
   OS.trashItems = (paths) => {
     paths.forEach((p) => {
       try { fs.remove(p); } catch (e) { OS.notify({ title: 'Suppression impossible', body: e.message }); }
@@ -300,6 +303,10 @@
       items: () => [
         { label: 'Raccourcis clavier', action: shortcuts },
         { label: 'Lisez-moi', action: () => OS.openPath('/Bureau/Lisez-moi.txt') },
+        { sep: true },
+        { label: 'Mentions légales', action: () => OS.openPage('mentions-legales.html') },
+        { label: 'Confidentialité', action: () => OS.openPage('confidentialite.html') },
+        { label: 'Crédits', action: () => OS.openPage('credits.html') },
       ],
     },
   ];
@@ -751,7 +758,7 @@
   function about() {
     const existing = OS.wm.list().find((w) => w.el.classList.contains('win--about'));
     if (existing) return OS.wm.focus(existing);
-    const win = OS.wm.open({ app: 'system', title: '', width: 300, height: 380, resizable: false, className: 'win--about' });
+    const win = OS.wm.open({ app: 'system', title: '', width: 300, height: 410, resizable: false, className: 'win--about' });
     const mem = navigator.deviceMemory ? `${navigator.deviceMemory} Go` : 'Partagée avec le navigateur';
     win.body.append(h('div', { class: 'about' },
       h('div', { class: 'about__logo', html: OS.icons.logo() }),
@@ -762,7 +769,11 @@
         h('dt', {}, 'Mémoire'), h('dd', {}, mem),
         h('dt', {}, 'Écran'), h('dd', {}, `${window.screen.width} × ${window.screen.height}`),
         h('dt', {}, 'Stockage'), h('dd', {}, OS.fmtSize(OS.store.size()) + ' utilisés')),
-      h('button', { class: 'btn', onclick: () => { win.close(); OS.launch('settings', { section: 'general' }); } }, 'Plus d\'infos…')));
+      h('button', { class: 'btn', onclick: () => { win.close(); OS.launch('settings', { section: 'general' }); } }, 'Plus d\'infos…'),
+      h('p', { class: 'about__legal' },
+        h('a', { href: 'mentions-legales.html', target: '_blank', rel: 'noopener' }, 'Mentions légales'), ' · ',
+        h('a', { href: 'confidentialite.html', target: '_blank', rel: 'noopener' }, 'Confidentialité'), ' · ',
+        h('a', { href: 'credits.html', target: '_blank', rel: 'noopener' }, 'Crédits'))));
   }
 
   function shortcuts() {
@@ -803,15 +814,15 @@
     const bar = $('#boot-bar');
     let p = 0;
     const step = () => {
-      p = document.hidden ? 1 : Math.min(1, p + 0.02 + Math.random() * 0.05); // onglet caché : inutile d'animer
+      p = document.hidden ? 1 : Math.min(1, p + 0.04 + Math.random() * 0.07); // onglet caché : inutile d'animer
       bar.style.transform = `scaleX(${p})`;
-      if (p < 1) setTimeout(step, 40 + Math.random() * 60);
+      if (p < 1) setTimeout(step, 30 + Math.random() * 40);
       else setTimeout(() => {
         boot.classList.add('is-done');
-        setTimeout(() => { boot.remove(); done?.(); }, 700);
-      }, 250);
+        setTimeout(() => { boot.remove(); done?.(); }, 500);
+      }, 150);
     };
-    setTimeout(step, 300);
+    setTimeout(step, 150);
   };
 
   OS.about = about;

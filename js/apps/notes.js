@@ -14,6 +14,7 @@
     const sizeBtn = h('button', { class: 'tb-btn', title: 'Taille du texte', onclick: () => { big = !big; OS.store.set('notes-big', big); editor.classList.toggle('is-big', big); } }, 'Aa');
     const search = h('input', { class: 'field field--search', placeholder: 'Rechercher', style: { width: '150px' }, 'aria-label': 'Rechercher dans les notes' });
     win.toolbar.append(h('div', { class: 'tb-spacer' }), sizeBtn, delBtn, newBtn, search);
+    win.titleEl.hidden = true;
 
     const list = h('div', { class: 'notes__list' });
     const editor = h('textarea', { class: 'notes__editor', spellcheck: 'true', placeholder: 'Commencez à écrire…', 'aria-label': 'Contenu de la note' });

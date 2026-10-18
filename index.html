@@ -3,18 +3,44 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Nimbus — mini OS</title>
-  <meta name="description" content="Nimbus, un mini système d'exploitation interactif qui tourne dans le navigateur : fichiers, notes, terminal, musique et plus." />
+  <title>Nimbus — mini OS interactif dans le navigateur</title>
+  <meta name="description" content="Nimbus, un mini système d'exploitation interactif qui tourne dans le navigateur : fichiers, notes, terminal, musique, mail, calendrier et plus. Sans installation." />
   <meta name="theme-color" content="#1b1b1f" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%236d5dfc'/%3E%3Cpath d='M7.2 18.5a4.7 4.7 0 0 1-.6-9.36 6 6 0 0 1 11.3 1.6 3.9 3.9 0 0 1-.4 7.76Z' fill='white'/%3E%3C/svg%3E" />
+  <link rel="canonical" href="https://julien-sys78.github.io/nimbus/" />
+
+  <!-- Partage sur les réseaux -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="Nimbus" />
+  <meta property="og:title" content="Nimbus — mini OS interactif" />
+  <meta property="og:description" content="Un vrai bureau dans le navigateur : fenêtres, Dock, fichiers, terminal, musique générée en direct. Essayez-le." />
+  <meta property="og:url" content="https://julien-sys78.github.io/nimbus/" />
+  <meta property="og:image" content="https://julien-sys78.github.io/nimbus/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Bureau de Nimbus avec les fenêtres Fichiers, Notes et Terminal ouvertes" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Nimbus — mini OS interactif" />
+  <meta name="twitter:description" content="Un vrai bureau dans le navigateur : fenêtres, Dock, fichiers, terminal, musique générée en direct." />
+  <meta name="twitter:image" content="https://julien-sys78.github.io/nimbus/og-image.jpg" />
+
+  <!-- Icônes -->
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+
   <link rel="preconnect" href="https://images.unsplash.com" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="preload" href="fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="css/os.css" />
   <link rel="stylesheet" href="css/apps.css" />
+
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebApplication","name":"Nimbus","url":"https://julien-sys78.github.io/nimbus/","applicationCategory":"DemoApplication","operatingSystem":"Navigateur web","inLanguage":"fr","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"description":"Un mini système d'exploitation interactif qui tourne dans le navigateur."}
+  </script>
 </head>
 <body>
+  <h1 class="sr-only">Nimbus, mini système d'exploitation de démonstration</h1>
 
   <div id="screen">
     <main id="desktop" aria-label="Bureau">
@@ -45,27 +71,34 @@
   </div>
 
   <!-- Démarrage -->
-  <div id="boot" aria-label="Démarrage de Nimbus">
+  <div id="boot" role="status">
+    <span class="sr-only">Démarrage de Nimbus…</span>
     <svg viewBox="0 0 24 24" class="boot__logo" aria-hidden="true"><path d="M7.2 18.5a4.7 4.7 0 0 1-.6-9.36 6 6 0 0 1 11.3 1.6 3.9 3.9 0 0 1-.4 7.76Z" fill="currentColor"/></svg>
     <div class="boot__track"><span id="boot-bar"></span></div>
   </div>
 
-  <noscript><p class="noscript">Nimbus a besoin de JavaScript pour fonctionner.</p></noscript>
+  <noscript>
+    <div class="noscript">
+      <p><strong>Nimbus</strong> est un mini système d'exploitation interactif : fichiers, notes, terminal, musique, mail…</p>
+      <p>Activez JavaScript pour l'essayer.</p>
+      <p><a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Confidentialité</a> · <a href="credits.html">Crédits</a></p>
+    </div>
+  </noscript>
 
-  <script src="js/core.js"></script>
-  <script src="js/fs.js"></script>
-  <script src="js/wm.js"></script>
-  <script src="js/shell.js"></script>
-  <script src="js/apps/files.js"></script>
-  <script src="js/apps/notes.js"></script>
-  <script src="js/apps/terminal.js"></script>
-  <script src="js/apps/settings.js"></script>
-  <script src="js/apps/photos.js"></script>
-  <script src="js/apps/music.js"></script>
-  <script src="js/apps/calculator.js"></script>
-  <script src="js/apps/calendar.js"></script>
-  <script src="js/apps/browser.js"></script>
-  <script src="js/apps/mail.js"></script>
-  <script src="js/main.js"></script>
+  <script src="js/core.js" defer></script>
+  <script src="js/fs.js" defer></script>
+  <script src="js/wm.js" defer></script>
+  <script src="js/shell.js" defer></script>
+  <script src="js/apps/files.js" defer></script>
+  <script src="js/apps/notes.js" defer></script>
+  <script src="js/apps/terminal.js" defer></script>
+  <script src="js/apps/settings.js" defer></script>
+  <script src="js/apps/photos.js" defer></script>
+  <script src="js/apps/music.js" defer></script>
+  <script src="js/apps/calculator.js" defer></script>
+  <script src="js/apps/calendar.js" defer></script>
+  <script src="js/apps/browser.js" defer></script>
+  <script src="js/apps/mail.js" defer></script>
+  <script src="js/main.js" defer></script>
 </body>
 </html>

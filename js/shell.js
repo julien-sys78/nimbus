@@ -19,10 +19,13 @@
     const app = OS.apps[id];
     if (!app) return null;
     const running = OS.wm.byApp(id);
-    if (app.single && running.length) {
-      OS.wm.focus(running[0]);
-      app.handle?.(running[0], args);
-      return running[0];
+    const wantsTarget = Object.keys(args).length > 0;
+    if (running.length && (app.single || (app.reuse && wantsTarget))) {
+      // Fenêtre la plus récente (même réduite) : on la ramène et on lui passe la demande
+      const win = running.slice().sort((a, b) => b.z - a.z)[0];
+      OS.wm.focus(win);
+      app.handle?.(win, args);
+      return win;
     }
     if (!running.length) bounce(id);
     return app.launch(args);
@@ -469,6 +472,7 @@
     dockInner.append(h('div', { class: 'dock__sep' }));
     const trashFull = Object.keys(fs.get('/Corbeille')?.children || {}).length > 0;
     const trash = dockItem('trash', OS.icons.trash(trashFull), 'Corbeille', () => OS.launch('files', { path: '/Corbeille' }));
+    trash.dataset.dropPath = '/Corbeille';
     trash.addEventListener('dragover', (e) => { if (e.dataTransfer.types.includes('text/nimbus-path')) { e.preventDefault(); trash.classList.add('is-drop'); } });
     trash.addEventListener('dragleave', () => trash.classList.remove('is-drop'));
     trash.addEventListener('drop', (e) => {
@@ -553,8 +557,7 @@
       const el = h('div', {
         class: `dicon${selected.has(item.path) ? ' is-selected' : ''}`,
         tabindex: '0',
-        draggable: 'true',
-        dataset: { path: item.path, kind: item.kind },
+        dataset: { path: item.path, kind: item.kind, ...(item.kind === 'folder' ? { dropPath: item.path } : {}) },
         style: { left: OS.clamp(pos.x, 0, window.innerWidth - 90) + 'px', top: OS.clamp(pos.y, 0, window.innerHeight - 160) + 'px' },
       }, h('span', { class: 'dicon__img', html: OS.itemIcon(item) }), label);
 
@@ -564,6 +567,7 @@
         if (e.shiftKey || e.metaKey || e.ctrlKey) { selected.has(item.path) ? selected.delete(item.path) : selected.add(item.path); }
         else if (!selected.has(item.path)) selected = new Set([item.path]);
         syncSelection();
+        if (e.button === 0 && selected.has(item.path)) startIconDrag(e);
       });
       el.addEventListener('dblclick', () => OS.openPath(item.path));
       el.addEventListener('keydown', (e) => {
@@ -584,13 +588,8 @@
           { label: 'Placer dans la corbeille', action: () => OS.trashItems([...selected]) },
         ], { x: e.clientX, y: e.clientY });
       });
-      el.addEventListener('dragstart', (e) => {
-        const r = el.getBoundingClientRect();
-        e.dataTransfer.setData('text/nimbus-path', [...(selected.has(item.path) ? selected : [item.path])].join('\n'));
-        e.dataTransfer.setData('text/nimbus-offset', `${e.clientX - r.left},${e.clientY - r.top}`);
-        e.dataTransfer.effectAllowed = 'move';
-      });
       if (item.kind === 'folder') {
+        // Dépôt depuis une fenêtre Fichiers (glisser-déposer natif)
         el.addEventListener('dragover', (e) => { if (e.dataTransfer.types.includes('text/nimbus-path')) { e.preventDefault(); e.stopPropagation(); el.classList.add('is-drop'); } });
         el.addEventListener('dragleave', () => el.classList.remove('is-drop'));
         el.addEventListener('drop', (e) => {
@@ -607,6 +606,74 @@
   }
 
   const syncSelection = () => iconsLayer.querySelectorAll('.dicon').forEach((el) => el.classList.toggle('is-selected', selected.has(el.dataset.path)));
+
+  /* Glisser des icônes du bureau : on déplace les icônes elles-mêmes (pas d'image fantôme
+     du navigateur, qui embarquait un morceau du fond d'écran). Cibles : un dossier, la
+     corbeille du Dock, une fenêtre Fichiers ([data-drop-path]) ou un endroit du bureau. */
+  function startIconDrag(e) {
+    const sx = e.clientX;
+    const sy = e.clientY;
+    const els = [...iconsLayer.querySelectorAll('.dicon')].filter((x) => selected.has(x.dataset.path));
+    let moving = false;
+    let target = null;
+
+    const findTarget = (x, y) => {
+      const hit = document.elementFromPoint(x, y);
+      if (!hit) return null;
+      const t = hit.closest('[data-drop-path]');
+      if (t && !els.includes(t)) return t;
+      if (hit.closest('.win, #dock, #menubar')) return 'blocked'; // fenêtre sans zone de dépôt : on annule
+      return null; // bureau
+    };
+    const onMove = (ev) => {
+      const dx = ev.clientX - sx;
+      const dy = ev.clientY - sy;
+      if (!moving) {
+        if (Math.hypot(dx, dy) < 4) return;
+        moving = true;
+        els.forEach((x) => x.classList.add('is-dragging'));
+      }
+      els.forEach((x) => { x.style.transform = `translate(${dx}px, ${dy}px)`; });
+      const t = findTarget(ev.clientX, ev.clientY);
+      if (t !== target) {
+        if (target && target !== 'blocked') target.classList.remove('is-drop');
+        target = t;
+        if (target && target !== 'blocked') target.classList.add('is-drop');
+      }
+    };
+    const onUp = (ev) => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      if (!moving) return;
+      if (target && target !== 'blocked') target.classList.remove('is-drop');
+      const dx = ev.clientX - sx;
+      const dy = ev.clientY - sy;
+      const paths = els.map((x) => x.dataset.path);
+      els.forEach((x) => { x.classList.remove('is-dragging'); x.style.transform = ''; });
+
+      if (target === 'blocked') return;
+      const dest = target?.dataset.dropPath;
+      if (dest && dest !== '/Bureau') {
+        if (dest === '/Corbeille') OS.trashItems(paths);
+        else paths.filter((p) => p !== dest).forEach((p) => {
+          try { fs.move(p, dest); } catch (err) { OS.notify({ title: 'Déplacement impossible', body: err.message }); }
+        });
+        return;
+      }
+      const pos = { ...OS.settings.iconPos };
+      els.forEach((x) => {
+        pos[fs.base(x.dataset.path)] = {
+          x: Math.round(OS.clamp(parseFloat(x.style.left) + dx, 0, window.innerWidth - 90)),
+          y: Math.round(OS.clamp(parseFloat(x.style.top) + dy, 0, window.innerHeight - 160)),
+        };
+      });
+      OS.setSetting('iconPos', pos);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+  }
   const moveIconPos = (oldName, newName) => {
     const pos = { ...OS.settings.iconPos };
     if (pos[oldName]) { pos[newName] = pos[oldName]; delete pos[oldName]; OS.setSetting('iconPos', pos); }

@@ -107,9 +107,6 @@
   }
 
   function launch(args = {}) {
-    // Une adresse demandée depuis ailleurs (recherche, Réglages…) s'ouvre dans la fenêtre existante
-    const existing = args.url && OS.wm.byApp('browser').filter((w) => !w.minimized).sort((a, b) => b.z - a.z)[0];
-    if (existing) { OS.wm.focus(existing); existing.go(args.url); return existing; }
     const win = OS.wm.open({ app: 'browser', title: 'Navigateur', width: 940, height: 600, minW: 420, minH: 300 });
     let history = [];
     let hpos = -1;
@@ -211,6 +208,8 @@
   OS.registerApp({
     id: 'browser',
     name: 'Navigateur',
+    reuse: true,
+    handle(win, args) { if (args.url) win.go(args.url); },
     keywords: ['web', 'internet', 'site'],
     about: 'Naviguez entre les pages de Nimbus et quelques sites qui acceptent l\'intégration.',
     icon: OS.icons.browser,

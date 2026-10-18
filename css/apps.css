@@ -28,6 +28,7 @@
 .files__content { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .files__banner { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--line); font-weight: 600; background: var(--fill); }
 .files__main { flex: 1; overflow: auto; outline: none; padding: 10px; align-content: start; }
+.files__main.is-drop { box-shadow: inset 0 0 0 2px var(--accent); }
 .files__main--grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
 .files__main--list { padding: 0; }
 .files__empty { grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-3); }

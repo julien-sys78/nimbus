@@ -45,7 +45,7 @@
 
     PLACES.forEach((p) => {
       if (p.header) { sidebar.append(h('div', { class: 'side__header' }, p.header)); return; }
-      const item = h('button', { class: 'side__item', dataset: { path: p.path }, onclick: () => go(p.path) }, h('span', { html: p.icon }), p.label);
+      const item = h('button', { class: 'side__item', dataset: { path: p.path, dropPath: p.path }, onclick: () => go(p.path) }, h('span', { html: p.icon }), p.label);
       dropTarget(item, () => p.path);
       sidebar.append(item);
     });
@@ -210,6 +210,7 @@
       banner.hidden = !banner.children.length;
 
       main.className = `files__main files__main--${view}`;
+      if (!query && cwd !== '/Applications') main.dataset.dropPath = cwd; else delete main.dataset.dropPath;
       main.replaceChildren();
       if (view === 'list') {
         main.append(h('div', { class: 'flist__head' }, h('span', {}, 'Nom'), h('span', {}, 'Modifié le'), h('span', {}, 'Taille'), h('span', {}, 'Type')));
@@ -221,7 +222,7 @@
         const el = h('div', {
           class: `fitem${selected.has(item.path) ? ' is-selected' : ''}`,
           draggable: item.kind !== 'app' ? 'true' : 'false',
-          dataset: { path: item.path },
+          dataset: { path: item.path, ...(item.kind === 'folder' ? { dropPath: item.path } : {}) },
         },
         h('span', { class: 'fitem__icon', html: OS.itemIcon(item) }),
         label,
@@ -272,6 +273,7 @@
   OS.registerApp({
     id: 'files',
     name: 'Fichiers',
+    reuse: true,
     keywords: ['dossier', 'explorateur', 'gestionnaire'],
     about: 'Parcourez, organisez et ouvrez vos documents.',
     icon: OS.icons.files,

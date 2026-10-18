@@ -244,7 +244,7 @@
 .music__vol input { width: 140px; accent-color: var(--text-2); }
 
 /* ---------- Calculatrice ---------- */
-.win--calc { background: #1c1c1e; }
+.win--calc .win__frame { background: #1c1c1e; }
 .win--calc .win__bar { background: transparent; border: 0; height: 28px; }
 .win--calc .win__body { background: transparent; }
 .win--calc { outline: none; }

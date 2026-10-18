@@ -353,20 +353,28 @@ img { -webkit-user-drag: none; }
 #windows { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
 .win {
   position: absolute;
-  display: flex;
-  flex-direction: column;
   min-width: 0;
   border-radius: var(--radius-win);
-  background: var(--win-solid);
   box-shadow: var(--shadow);
   color: var(--text);
-  overflow: hidden;
   pointer-events: auto;
-  isolation: isolate;
+}
+/* Le découpage des coins se fait sur un cadre intérieur avec clip-path :
+   overflow + border-radius « clignote » dans certains navigateurs quand
+   le contenu se redessine (frappe au clavier), et l'ombre reste sur .win. */
+.win__frame {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--win-solid);
+  overflow: hidden;
+  clip-path: inset(0 round var(--radius-win));
 }
 .win:not(.is-focused) { box-shadow: 0 12px 40px rgba(0, 0, 0, .2), 0 0 0 .5px rgba(0, 0, 0, .2); }
 .win.is-anim { transition: left .25s var(--ease), top .25s var(--ease), width .25s var(--ease), height .25s var(--ease), border-radius .25s; }
 .win.is-max { border-radius: 0; }
+.win.is-max .win__frame { clip-path: none; }
 .win.is-dragging { user-select: none; }
 .win.is-dragging iframe { pointer-events: none; }
 

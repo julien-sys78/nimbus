@@ -218,7 +218,7 @@ OS.wm = (() => {
     const toolbar = h('div', { class: 'win__toolbar' });
     const bar = h('header', { class: 'win__bar' }, traffic, title, toolbar);
     const body = h('div', { class: 'win__body' });
-    const el = h('section', { class: `win ${opts.className || ''}`, role: 'dialog', 'aria-label': opts.title || '', 'data-app': opts.app }, bar, body);
+    const el = h('section', { class: `win ${opts.className || ''}`, role: 'dialog', 'aria-label': opts.title || '', 'data-app': opts.app }, h('div', { class: 'win__frame' }, bar, body));
 
     const win = {
       id, app: opts.app, el, bar, body, toolbar, titleEl: title,

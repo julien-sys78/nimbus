@@ -150,7 +150,7 @@
 .set__rlabel small { color: var(--text-2); font-size: 11px; }
 .set__row input[type="range"] { width: 200px; accent-color: var(--accent); }
 .set__val { color: var(--text-2); }
-.set__link { color: var(--accent); text-decoration: none; font-weight: 500; }
+.set__link { color: var(--accent); text-decoration: none; font-weight: 500; cursor: pointer; }
 .set__link:hover { text-decoration: underline; }
 .set__note { color: var(--text-2); font-size: 12px; margin-top: 14px; }
 .set__themes { display: flex; gap: 18px; margin-bottom: 20px; }

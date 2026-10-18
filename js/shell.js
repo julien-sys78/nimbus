@@ -77,8 +77,8 @@
     input.addEventListener('blur', () => finish(true));
   };
 
-  /* Pages du site (légales, crédits) : nouvel onglet du vrai navigateur */
-  OS.openPage = (page) => window.open(page, '_blank', 'noopener');
+  /* Pages du site (légales, crédits) : ouvertes dans le Navigateur de Nimbus */
+  OS.openPage = (page) => OS.launch('browser', { url: new URL(page, location.href).href });
 
   OS.trashItems = (paths) => {
     paths.forEach((p) => {
@@ -771,9 +771,8 @@
         h('dt', {}, 'Stockage'), h('dd', {}, OS.fmtSize(OS.store.size()) + ' utilisés')),
       h('button', { class: 'btn', onclick: () => { win.close(); OS.launch('settings', { section: 'general' }); } }, 'Plus d\'infos…'),
       h('p', { class: 'about__legal' },
-        h('a', { href: 'mentions-legales.html', target: '_blank', rel: 'noopener' }, 'Mentions légales'), ' · ',
-        h('a', { href: 'confidentialite.html', target: '_blank', rel: 'noopener' }, 'Confidentialité'), ' · ',
-        h('a', { href: 'credits.html', target: '_blank', rel: 'noopener' }, 'Crédits'))));
+        ...[['mentions-legales.html', 'Mentions légales'], ['confidentialite.html', 'Confidentialité'], ['credits.html', 'Crédits']]
+          .flatMap(([page, label], i) => [i ? ' · ' : null, h('button', { class: 'about__link', onclick: () => { win.close(); OS.openPage(page); } }, label)]))));
   }
 
   function shortcuts() {

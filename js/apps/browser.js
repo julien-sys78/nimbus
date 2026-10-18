@@ -107,6 +107,9 @@
   }
 
   function launch(args = {}) {
+    // Une adresse demandée depuis ailleurs (recherche, Réglages…) s'ouvre dans la fenêtre existante
+    const existing = args.url && OS.wm.byApp('browser').filter((w) => !w.minimized).sort((a, b) => b.z - a.z)[0];
+    if (existing) { OS.wm.focus(existing); existing.go(args.url); return existing; }
     const win = OS.wm.open({ app: 'browser', title: 'Navigateur', width: 940, height: 600, minW: 420, minH: 300 });
     let history = [];
     let hpos = -1;
@@ -142,7 +145,8 @@
       lock.textContent = url.startsWith('https://') ? '🔒' : '';
       loading();
 
-      if (OS.wifi === false && url.startsWith('http')) {
+      const local = url.startsWith(location.origin + '/');
+      if (OS.wifi === false && url.startsWith('http') && !local) {
         render('Pas de connexion', `<div class="web web--error"><h1>Vous n'êtes pas connecté à Internet.</h1><p>Le Wi-Fi est désactivé. Réactivez-le depuis la barre de menus.</p></div>`);
         return;
       }
@@ -159,10 +163,23 @@
         sandbox: 'allow-scripts allow-same-origin allow-forms allow-popups',
         referrerpolicy: 'no-referrer',
       });
-      const note = h('div', { class: 'br__note' },
-        h('span', {}, 'Certains sites refusent de s\'afficher dans une autre page.'),
-        h('a', { href: url, target: '_blank', rel: 'noopener' }, 'Ouvrir dans un nouvel onglet ↗'));
-      view.replaceChildren(note, frame);
+      if (local) {
+        // Page du site lui-même : on suit la navigation et le titre à l'intérieur du cadre
+        frame.addEventListener('load', () => {
+          try {
+            const doc = frame.contentDocument;
+            win.setTitle(doc.title || new URL(url).hostname);
+            const here = frame.contentWindow.location.href;
+            if (here !== 'about:blank') { address.value = here; history[hpos] = here; }
+          } catch { /* cadre devenu inaccessible */ }
+        });
+        view.replaceChildren(frame);
+      } else {
+        const note = h('div', { class: 'br__note' },
+          h('span', {}, 'Certains sites refusent de s\'afficher dans une autre page.'),
+          h('a', { href: url, target: '_blank', rel: 'noopener' }, 'Ouvrir dans un nouvel onglet ↗'));
+        view.replaceChildren(note, frame);
+      }
       win.setTitle(new URL(url).hostname);
     }
 

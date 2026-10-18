@@ -527,7 +527,7 @@ img { -webkit-user-drag: none; }
 .about dt { font-weight: 600; text-align: right; }
 .about dd { margin: 0; color: var(--text-2); }
 .about__legal { margin: 14px 0 0; font-size: 11px; color: var(--text-3); }
-.about__legal a { color: var(--text-2); }
+.about__link { color: var(--text-2); font-size: 11px; text-decoration: underline; cursor: pointer; }
 .shortcuts { padding: 12px 18px; display: grid; gap: 2px; }
 .shortcuts__row { display: grid; grid-template-columns: 100px 1fr; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .shortcuts__row:last-child { border: 0; }
